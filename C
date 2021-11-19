@@ -1,0 +1,225 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define BUFFER 64
+
+typedef struct lista {
+        char *nome;
+        int peso;
+        struct lista *proximo;
+} Dados;
+
+
+Dados *inicia_dados(char *nome, int peso);
+Dados *insere_dados(Dados *dados, char *nome, int peso);
+void exibe_dados(Dados *dados);
+void busca_dados(Dados *dados, char *chave);
+Dados *deleta_dados(Dados *dados);
+int checa_vazio(Dados *dados);
+
+
+void insere(void);
+void exibe(void);
+void busca(void);
+void deleta(void);
+
+
+Dados *principal = NULL;
+
+
+Dados *inicia_dados(char *nome, int peso) {
+
+        Dados *novo;
+
+        novo = (Dados *)malloc(sizeof(Dados));
+        novo->nome = (char *)malloc(strlen(nome)+1);
+        strncpy(novo->nome, nome, strlen(nome)+1);
+        novo->peso = peso;
+        novo->proximo = NULL;
+
+        return novo;
+}
+
+
+Dados *insere_dados(Dados *dados, char *nome, int peso) {
+
+        Dados *novo;
+
+        novo = (Dados *)malloc(sizeof(Dados));
+        novo->nome = (char *)malloc(strlen(nome)+1);
+        strncpy(novo->nome, nome, strlen(nome)+1);
+        novo->peso = peso;
+        novo->proximo = dados;
+
+        return novo;
+}
+
+
+void exibe_dados(Dados *dados) {
+
+        fprintf(stdout, "Cadastro:\n\n");
+
+        fprintf(stdout, "------------------------\n");
+
+        for (; dados != NULL; dados = dados->proximo) {
+                fprintf(stdout, "Nome: %s\n", dados->nome);
+                fprintf(stdout, "Peso: %d\n", dados->peso);
+                
+        }
+
+        getchar();
+}
+
+
+void busca_dados(Dados *dados, char *chave) {
+
+        int achou = 0;
+
+        fprintf(stdout, "Cadastro:\\n\\n");
+        for (; dados != NULL; dados = dados->proximo) {
+                if (strcmp(chave, dados->nome) == 0) {
+
+                        fprintf(stdout, "------------------------\\n");
+                        fprintf(stdout, "Nome: %s\\n", dados->nome);
+                        fprintf(stdout, "Peso: %d\\n", dados->peso);
+                        fprintf(stdout, "------------------------\\n");
+                        achou++;
+                }
+        }
+
+        if (achou == 0)
+                fprintf(stdout, "Nenhum resultado encontrado.\n");
+        else
+                fprintf(stdout, "Foram encontrados %d registros.\n", achou);
+
+        sleep(1);
+}
+
+
+Dados *deleta_dados(Dados *dados) {
+
+        Dados *novo;
+
+        novo = dados->proximo;
+
+        free(dados->nome);
+        free(dados);
+
+        fprintf(stdout, "O ultimo registro inserido foi deletado com sucesso.\\n");
+        sleep(1);
+
+        return novo;
+}
+
+
+int checa_vazio(Dados *dados) {
+
+        if (dados == NULL) {
+                fprintf(stdout, "Lista vazia!\\n");
+                sleep(1);
+                return 1;
+        } else
+                return 0;
+}
+
+
+void insere(void) {
+
+        char *nome;
+        int peso;
+
+        nome = (char *)malloc(BUFFER);
+
+        fprintf(stdout, "\n\nDigite o Nome: \n----> ");
+        scanf("%s", nome);
+        fprintf(stdout, "\n");
+
+        fprintf(stdout, "Digite o peso: \n----> ");
+        scanf("%d", &peso);
+        fprintf(stdout, "\n");
+
+        if (principal == NULL) 
+                principal = inicia_dados(nome,peso);
+        else 
+                principal = insere_dados(principal, nome, peso);
+}
+
+void exibe(void) {
+
+        if (!checa_vazio(principal))
+                exibe_dados(principal);
+}
+
+void busca(void) {
+
+        char *chave;
+
+        if (!checa_vazio(principal)) {
+
+                chave = (char *)malloc(BUFFER);
+
+                fprintf(stdout, "Digite o nome para buscar: \n--> ");
+                scanf("%s", chave);
+
+                busca_dados(principal, chave);
+        }
+}
+
+void deleta(void) {
+
+        if (!checa_vazio(principal))
+                principal = deleta_dados(principal);
+}
+
+int main(void) {
+
+        char escolha;
+
+        do {
+                
+                fprintf(stdout, "\n\t\tCadastro de Pessoas\n\n");
+                fprintf(stdout, "Escolha uma opcao: \n");
+                fprintf(stdout, "1 - Insere Dados\n");
+                fprintf(stdout, "2 - Exibe Dados\n");
+                fprintf(stdout, "3 - Busca Dados\n");
+                fprintf(stdout, "4 - Deleta Dados\n");
+                fprintf(stdout, "5 - Sair\n\n");
+
+                scanf("%c", &escolha);
+
+                switch(escolha) {
+                        case '1':
+                                insere();
+                                break;
+
+                        case '2':
+                                exibe();
+                                break;
+
+                        case '3':
+                                busca();
+                                break;
+
+                        case '4':
+                                deleta();
+                                break;
+
+                        case '5':
+                                exit(0);
+                                break;
+
+                        default:
+                                fprintf(stderr,"Digite uma opcao valida!\n");
+                                sleep(1);
+                                break;
+                }
+
+                getchar(); 
+        }
+
+        while (escolha > 0); 
+
+        return 0;
+}
